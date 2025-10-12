@@ -1,0 +1,10 @@
+flowchart TD
+    A[Nicho + Subnicho] --> B[GET SEARCH YT]
+    B --> C[GET VIDEO YT]
+    C --> D[GET CHANNEL YT]
+    C --> E[Aggregate LLM]
+    D --> E
+    E --> F[GPT 4.1 MINI]
+    F --> G[Parse LLM Output]
+    G --> H[Final JSON Output]
+    H --> I[Save to Google Sheets]

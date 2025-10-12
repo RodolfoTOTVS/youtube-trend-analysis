@@ -1,0 +1,507 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const ideiasArray = items.map(item => {\n  const { nicho, data_analise, ...restOfIdea } = item.json;\n  return restOfIdea;\n});\n\nconst finalNiche = items[0].json.nicho || 'Nicho Não Encontrado';\nconst today = items[0].json.data_analise || new Date().toISOString().split('T')[0];\n\nconst finalOutput = {\n  nicho: finalNiche,\n  data_analise: today,\n  ideias: ideiasArray\n};\n\nreturn [{ json: finalOutput }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        704
+      ],
+      "id": "5f525aef-83bf-4e97-a7d5-968da43e05d6",
+      "name": "Final JSON Output"
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "url": "https://www.googleapis.com/youtube/v3/videos",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "part",
+              "value": "snippet,contentDetails,statistics"
+            },
+            {
+              "name": "id",
+              "value": "={{$json[\"items\"].map(i => i.id.videoId).join(\",\")}}"
+            },
+            {
+              "name": "maxResults",
+              "value": "={{ $('Nicho + Subnicho').item.json.maxResults }}"
+            }
+          ]
+        }
+      },
+      "id": "ef32aea1-30dd-465c-8572-39873d5c6d8d",
+      "name": "GET VIDEO YT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        144,
+        704
+      ],
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "9IRcbJckwINEysgO",
+          "name": "Custom Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "lWcuXmP3Vwf9nD0H",
+          "name": "Header Auth account"
+        },
+        "httpQueryAuth": {
+          "id": "zKXOBNGNau6sdrvN",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "url": "https://www.googleapis.com/youtube/v3/search",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "q",
+              "value": "==={{$json[\"subniche\"] + ' para ' + $json[\"niche\"]}}"
+            },
+            {
+              "name": "type",
+              "value": "video"
+            },
+            {
+              "name": "maxResults",
+              "value": "={{ $('Nicho + Subnicho').item.json.maxResults }}"
+            },
+            {
+              "name": "order",
+              "value": "viewCount"
+            },
+            {
+              "name": "relevanceLanguage"
+            }
+          ]
+        }
+      },
+      "id": "d20d53d7-b5e6-4777-9ad0-40acf319e0b4",
+      "name": "GET SEARCH YT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        704
+      ],
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "9IRcbJckwINEysgO",
+          "name": "Custom Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "lWcuXmP3Vwf9nD0H",
+          "name": "Header Auth account"
+        },
+        "httpQueryAuth": {
+          "id": "zKXOBNGNau6sdrvN",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "queryAuth",
+        "url": "https://www.googleapis.com/youtube/v3/channels",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "part",
+              "value": "statistics"
+            },
+            {
+              "name": "id",
+              "value": "={{$json[\"items\"].map(i => i.snippet.channelId).join(\",\")}}"
+            }
+          ]
+        }
+      },
+      "name": "GET CHANNEL YT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        352,
+        704
+      ],
+      "id": "63261893-b428-4df2-a7c1-79ac30d0e326",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "zKXOBNGNau6sdrvN",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1k9VQFXl3CEwEnZFzFWVRbiIB2lfBdrQAkNux565jvsQ",
+          "mode": "list",
+          "cachedResultName": "Resultado Tendência Youtube",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k9VQFXl3CEwEnZFzFWVRbiIB2lfBdrQAkNux565jvsQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2009787938,
+          "mode": "list",
+          "cachedResultName": "n8n-sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k9VQFXl3CEwEnZFzFWVRbiIB2lfBdrQAkNux565jvsQ/edit#gid=2009787938"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nicho",
+              "displayName": "nicho",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data_analise",
+              "displayName": "data_analise",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "titulo",
+              "displayName": "titulo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "justificativa",
+              "displayName": "justificativa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "palavras_chave",
+              "displayName": "palavras_chave",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "concorrencia",
+              "displayName": "concorrencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        512
+      ],
+      "id": "94f9380a-4835-4ef3-aa71-c9e50a67a463",
+      "name": "Atualiza Planilha",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ULqGMZexAAr1RlxY",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "niche",
+              "value": "={{$json[\"niche\"] || \"Saúde 50+\"}}"
+            },
+            {
+              "name": "subniche",
+              "value": "={{$json[\"subniche\"] || \"weak legs\"}}"
+            },
+            {
+              "name": "maxResults",
+              "value": "50"
+            },
+            {
+              "name": "searchLanguage"
+            }
+          ],
+          "number": [
+            {
+              "name": "SessionID",
+              "value": {}
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Nicho + Subnicho",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        512
+      ],
+      "id": "050d370e-40cc-46d1-981e-d51223952867"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        512
+      ],
+      "id": "dd433b76-c893-41fa-8b03-b311aea1e308",
+      "name": "test"
+    },
+    {
+      "parameters": {
+        "jsCode": "const final = $json; \nconst rows = final.ideias.map(idea => ({\n  nicho: final.nicho,\n  data_analise: final.data_analise,\n  titulo: idea.titulo,\n  score: idea.score,\n  justificativa: idea.justificativa,\n  palavras_chave: idea.palavras_chave.join(\", \"),\n  concorrencia: idea.concorrencia\n}));\nreturn rows.map(r => ({ json: r }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        704
+      ],
+      "id": "403a1481-d04d-4418-b87d-d56fe7a8e557",
+      "name": "Prepare Sheet Data"
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4.1-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "=Você é um analista sênior de tendências do YouTube. Sua tarefa é analisar a estrutura dos títulos, descrições e métricas dos vídeos fornecidos para identificar padrões que indiquem oportunidades de crescimento no nicho informado. Use o subnicho **{{ $('Nicho + Subnicho').item.json.subniche }}** na análise.\\\\n\\\\nCom base nos dados a seguir, gere uma lista de 15 ideias de conteúdo **com alto potencial de viralização**.\\\\n\\\\nPara cada ideia, inclua obrigatoriamente:\\\\n- titulo (curto e atraente)\\\\n- score (0–100) **→ Score de Oportunidade**\\\\n- justificativa (por que essa ideia tem potencial, citando os dados observados)\\\\n- palavras_chave (array de termos relevantes)\\\\n- concorrencia (baixa / média / alta) **→ Baseada em quantos vídeos de canais grandes apareceram na amostragem.**\\\\n\\\\n\n\n**DEFINIÇÃO DO SCORE DE OPORTUNIDADE (0-100):**\nO score é uma métrica de **Oportunidade de Outlier**. Ele deve ser alto para temas com **altas métricas de Views/Likes/Comentários** na amostragem, e que tenham uma **Concorrência Média ou Baixa** (o Score é penalizado se a Concorrência for Alta).\n\n+ Sempre leve em consideração o campo `score_calculado` de cada vídeo como uma medida base de desempenho. \n+ Use esse valor como principal referência numérica para estimar o `score` final de cada ideia.\n+ Se não houver campo `score_calculado`, use uma média ponderada das métricas visíveis (views, likes, comments).\n\n⚙️ Regras de saída obrigatórias:\\\\n1. Responda SOMENTE com um objeto JSON válido.\\\\n2. Preencha as chaves `nicho` e `data_analise` com os valores abaixo.\\\\n\\\\n**METADADOS PARA INCLUSÃO:**\\\\n- Nicho Principal: {{ $('Nicho + Subnicho').item.json.niche }}\\\\n- Data da Análise: {{ new Date().toISOString().split('T')[0] }}\\\\n\\\\n**ESTRUTURA JSON OBRIGATÓRIA:**\\\\n```json\\\\n{\\\\n\\\\t\\\"nicho\\\": \\\"[VALOR DO NICHO AQUI]\\\",\\\\n\\\\t\\\"data_analise\\\": \\\"[DATA DE HOJE AQUI]\\\",\\\\n\\\\t\\\"ideias\\\": [\\\\n\\\\t\\\\t{ [LISTA DE 15 IDEIAS AQUI] }\\\\n\\\\t]\\\\n}\\\\n```\\\\n\\\\n**DADOS DE VÍDEOS AGREGADOS (JSON):**\\\\n{{ JSON.stringify($json) }}\""
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "id": "a70ed4a5-8555-4b84-8692-c1b3eff04851",
+      "name": "GPT 4.1 MINI",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        800,
+        512
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "HELNnyrR7glznx0s",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "function safeJsonParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch (e) {\n    return null;\n  }\n}\n\nfunction extractJsonFromText(text) {\n  if (!text || typeof text !== 'string') return null;\n\n  const codeFenceMatch = text.match(/```(?:json)?\\s*([\\s\\S]*?)\\s*```/i);\n  if (codeFenceMatch) {\n    const maybe = safeJsonParse(codeFenceMatch[1].trim());\n    if (maybe) return maybe;\n  }\n\n  const firstBrace = text.indexOf('{');\n  const lastBrace = text.lastIndexOf('}');\n  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {\n    const substring = text.slice(firstBrace, lastBrace + 1);\n    const maybe = safeJsonParse(substring);\n    if (maybe) return maybe;\n  }\n\n  const firstBracket = text.indexOf('[');\n  const lastBracket = text.lastIndexOf(']');\n  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {\n    const substring = text.slice(firstBracket, lastBracket + 1);\n    const maybe = safeJsonParse(substring);\n    if (maybe) return maybe;\n  }\n\n  const replaced = text\n    .replace(/[\\u2018\\u2019\\u201A\\u201B\\u2032]/g, \"'\")\n    .replace(/[\\u201C\\u201D\\u201E\\u201F\\u2033]/g, '\"');\n  const maybe = safeJsonParse(replaced);\n  if (maybe) return maybe;\n\n  return null;\n}\n\ntry {\n  const payload = items[0].json || {};\n  let content = null;\n  \n  if (payload.message && typeof payload.message.content === 'string') {\n    content = payload.message.content;\n  }\n\n  else if (payload.body && payload.body.choices && payload.body.choices[0]) {\n    const c = payload.body.choices[0];\n    content = c.message?.content || c.text || c.delta?.content || null;\n  }\n  else if (payload.choices && payload.choices[0]) {\n    const c = payload.choices[0];\n    content = c.message?.content || c.text || null;\n  }\n  else if (payload.content && typeof payload.content === 'string') {\n    content = payload.content;\n  } else if (payload.text && typeof payload.text === 'string') {\n    content = payload.text;\n  }\n\n  if (!content) {\n    content = typeof payload === 'string' ? payload : JSON.stringify(payload);\n  }\n\n  let parsed = safeJsonParse(content);\n\n  if (!parsed) {\n    parsed = extractJsonFromText(content);\n  }\n\n  if (!parsed && payload.message && typeof payload.message === 'object') {\n    parsed = payload.message;\n  }\n\n  if (!parsed) {\n\n    const possible = payload.ideias || payload.ideas || payload.items || payload.data;\n    if (possible) {\n      if (Array.isArray(possible)) {\n        parsed = { ideias: possible };\n      } else if (typeof possible === 'object') {\n        parsed = possible;\n      }\n    }\n  }\n\n  if (!parsed) {\n    console.error('Parse LLM Output: não foi possível extrair JSON do conteúdo do LLM. Conteúdo recebido:', content.slice(0, 1000));\n    return []; \n  }\n\n  const ideias = parsed.ideias || parsed.ideas || parsed.Ideias || parsed.Ideas || [];\n  const nicheValue = parsed.nicho || parsed.niche || (payload.nicho || payload.niche) || '';\n  const dateValue = parsed.data_analise || parsed.data || parsed.date || (payload.data_analise || '');\n\n  let finalIdeas = [];\n  if (Array.isArray(ideias)) {\n    finalIdeas = ideias;\n  } else if (typeof parsed === 'object') {\n    const arrProp = Object.values(parsed).find(v => Array.isArray(v));\n    if (arrProp) finalIdeas = arrProp;\n  }\n\n  if (finalIdeas.length === 0 && Array.isArray(parsed)) {\n    finalIdeas = parsed;\n  }\n\n  if (!Array.isArray(finalIdeas)) finalIdeas = [];\n\n  const normalized = finalIdeas.map(raw => {\n    if (typeof raw === 'string') {\n      return {\n        titulo: raw.substring(0, 120),\n        score: null,\n        justificativa: '',\n        palavras_chave: [],\n        concorrencia: ''\n      };\n    }\n\n    const titulo = raw.titulo || raw.title || raw.name || raw.Titulo || '';\n    let score = raw.score ?? raw.pontuacao ?? raw.Score ?? null;\n    if (typeof score === 'string') {\n      const n = Number(score.replace(/[^\\d.-]/g, ''));\n      score = Number.isFinite(n) ? n : null;\n    }\n    const justificativa = raw.justificativa || raw.justification || raw.reason || '';\n    const palavras_chave = raw.palavras_chave || raw.keywords || raw.palavras || raw.tags || [];\n    const concorrencia = (raw.concorrencia || raw.competition || '').toString();\n\n    return {\n      titulo: titulo || '',\n      score: (typeof score === 'number' && !Number.isNaN(score)) ? Math.max(0, Math.min(100, Math.round(score))) : null,\n      justificativa: justificativa || '',\n      palavras_chave: Array.isArray(palavras_chave) ? palavras_chave : (typeof palavras_chave === 'string' ? palavras_chave.split(',').map(s => s.trim()) : []),\n      concorrencia: concorrencia || ''\n    };\n  });\n\n  return normalized.map(i => ({\n    json: {\n      ...i,\n      nicho: nicheValue || items[0].json.niche || items[0].json.nicho || '',\n      data_analise: dateValue || items[0].json.data_analise || items[0].json.data || new Date().toISOString().split('T')[0]\n    }\n  }));\n} catch (err) {\n  console.error('Erro inesperado no Parse LLM Output:', err.message);\n  return [];\n}"
+      },
+      "name": "Parse LLM Output",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        512
+      ],
+      "id": "89ab24b6-a9e1-4dbd-96af-c172de141e29",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "functionCode": "function daysSince(dateStr) {\n  if (!dateStr) return 1;\n  const d = new Date(dateStr);\n  const today = new Date();\n  const diffMs = Math.max(0, today - d);\n  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));\n  return Math.max(1, days);\n}\n\nfunction iqr(arr) {\n  if (!arr.length) return 0;\n  const s = arr.slice().sort((a,b)=>a-b);\n  const q1 = s[Math.floor((s.length - 1) * 0.25)];\n  const q3 = s[Math.floor((s.length - 1) * 0.75)];\n  return q3 - q1;\n}\n\nfunction normPercentile(sortedArr, value) {\n  if (!sortedArr.length) return 0.5;\n  const n = sortedArr.length;\n  let count = 0;\n  for (let i = 0; i < n; i++) {\n    if (sortedArr[i] <= value) count++;\n    else break;\n  }\n  return Math.max(0, Math.min(1, (count - 1) / Math.max(1, n - 1)));\n}\n\nconst videoNodeItems = $items(\"GET VIDEO YT\") || [];\nlet videoList = [];\nfor (const it of videoNodeItems) {\n  if (it.json && Array.isArray(it.json.items)) {\n    videoList = videoList.concat(it.json.items);\n  } else if (it.json && it.json.id && (it.json.snippet || it.json.statistics)) {\n    videoList.push(it.json);\n  }\n}\n\nconst channelNodeItems = $items(\"GET CHANNEL YT\") || [];\nconst channelMap = {};\nfor (const it of channelNodeItems) {\n  if (it.json && Array.isArray(it.json.items)) {\n    for (const ch of it.json.items) {\n      const id = ch.id;\n      const subs = Number(ch.statistics?.subscriberCount || 0);\n      channelMap[id] = { subscriberCount: subs, raw: ch };\n    }\n  } else if (it.json && it.json.id) {\n    const ch = it.json;\n    channelMap[ch.id] = { subscriberCount: Number(ch.statistics?.subscriberCount || 0), raw: ch };\n  }\n}\n\nconst rows = videoList.map(v => {\n  const snippet = v.snippet || {};\n  const stats = v.statistics || {};\n  const content = v.contentDetails || {};\n  const publishDate = snippet.publishedAt || v.publishedAt || null;\n  const views = Number(stats.viewCount || 0);\n  const likes = Number(stats.likeCount || 0);\n  const comments = Number(stats.commentCount || 0);\n  const channelId = snippet.channelId || v.channelId || null;\n  const channelTitle = snippet.channelTitle || v.channelTitle || '';\n  const channelSubs = channelMap[channelId]?.subscriberCount || 0;\n\n  const days = daysSince(publishDate);\n  const views_per_day = views / days;\n  const log_views = Math.log10(views + 1);\n  const engagement_rate = (likes + comments) / Math.max(views, 1);\n  const like_rate = likes / Math.max(views, 1);\n\n  return { id: v.id, snippet, stats, content, publishDate, views, likes, comments, channelId, channelTitle, channelSubs,\n           days, views_per_day, log_views, engagement_rate, like_rate };\n});\n\nconst avg_views_per_day = rows.reduce((s, r) => s + r.views_per_day, 0) / rows.length;\nconst avg_engagement = rows.reduce((s, r) => s + r.engagement_rate, 0) / rows.length;\n\nconst arr_vpd = rows.map(r => r.views_per_day).slice().sort((a,b)=>a-b);\nconst arr_lv = rows.map(r => r.log_views).slice().sort((a,b)=>a-b);\nconst arr_eng = rows.map(r => r.engagement_rate).slice().sort((a,b)=>a-b);\nconst arr_like = rows.map(r => r.like_rate).slice().sort((a,b)=>a-b);\nconst arr_subs = rows.map(r => r.channelSubs).slice().sort((a,b)=>a-b);\n\nconst bigThreshold = 100000;\nconst bigChannelsCount = rows.filter(r => r.channelSubs >= bigThreshold).length;\n\nconst weights = {\n  views_per_day: 0.30,\n  log_views: 0.20,\n  engagement_rate: 0.20,\n  like_rate: 0.10,\n  channel_subs: 0.10,\n  competition: 0.10\n};\n\nconst iqr_vpd = iqr(arr_vpd);\nconst iqr_eng = iqr(arr_eng);\nconst q3_vpd = arr_vpd[Math.floor((arr_vpd.length - 1) * 0.75)] || 0;\nconst q3_eng = arr_eng[Math.floor((arr_eng.length - 1) * 0.75)] || 0;\n\nfunction pct(aSorted, v) {\n  return normPercentile(aSorted, v);\n}\n\nconst results = rows.map(r => {\n  const n_vpd = pct(arr_vpd, r.views_per_day);\n  const n_lv = pct(arr_lv, r.log_views);\n  const n_eng = pct(arr_eng, r.engagement_rate);\n  const n_like = pct(arr_like, r.like_rate);\n  const n_subs = pct(arr_subs, r.channelSubs);\n  const n_comp = 1 - (r.channelSubs >= bigThreshold ? 1 : 0);\n\n  const baseScore = (\n    (weights.views_per_day * n_vpd) +\n    (weights.log_views * n_lv) +\n    (weights.engagement_rate * n_eng) +\n    (weights.like_rate * n_like) +\n    (weights.channel_subs * n_subs) +\n    (weights.competition * n_comp)\n  );\n\n  const outlierBoost = (r.views_per_day > avg_views_per_day * 2) ? 1.3 : 1;\n  const final_score = Math.round(baseScore * outlierBoost * 100);\n\n  return {\n    json: {\n      id: r.id,\n      title: r.snippet?.title || '',\n      description: r.snippet?.description || '',\n      publishDate: r.publishDate,\n      views: r.views,\n      likes: r.likes,\n      comments: r.comments,\n      duration: r.content?.duration || null,\n      channelId: r.channelId,\n      channelTitle: r.channelTitle,\n      channelSubs: r.channelSubs,\n      computed_metrics: {\n        views_per_day: Number(r.views_per_day.toFixed(4)),\n        log_views: Number(r.log_views.toFixed(4)),\n        engagement_rate: Number(r.engagement_rate.toFixed(4)),\n        like_rate: Number(r.like_rate.toFixed(4))\n      },\n      computed_score: Math.round(baseScore * 100),\n      final_score,\n      outlier_boost: outlierBoost,\n      bigChannelsInSample: bigChannelsCount,\n      weights_used: weights\n    }\n  };\n});\n\nreturn results;"
+      },
+      "name": "Aggregate for LLM",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        544,
+        512
+      ],
+      "id": "1fe3b1cf-cb85-4afb-b089-4a3cfd6d835e"
+    }
+  ],
+  "connections": {
+    "Final JSON Output": {
+      "main": [
+        [
+          {
+            "node": "Prepare Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET VIDEO YT": {
+      "main": [
+        [
+          {
+            "node": "GET CHANNEL YT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET SEARCH YT": {
+      "main": [
+        [
+          {
+            "node": "GET VIDEO YT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET CHANNEL YT": {
+      "main": [
+        [
+          {
+            "node": "Aggregate for LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza Planilha": {
+      "main": [
+        []
+      ]
+    },
+    "Nicho + Subnicho": {
+      "main": [
+        [
+          {
+            "node": "GET SEARCH YT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "test": {
+      "main": [
+        [
+          {
+            "node": "Nicho + Subnicho",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Atualiza Planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT 4.1 MINI": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM Output": {
+      "main": [
+        [
+          {
+            "node": "Final JSON Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate for LLM": {
+      "main": [
+        [
+          {
+            "node": "GPT 4.1 MINI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "189fb449fe70e82c194e66ea2c75328c098c3931a84012dd5a6f3b720fb38b64"
+  }
+}
